@@ -5,11 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
 import { useAuth } from '../../providers/AuthProvider';
 
+const DISABLE_AUTH = process.env.EXPO_PUBLIC_DISABLE_AUTH === 'true'; // Disable auth for development purpose
+
 export default function TabsLayout() {
   const { session, loading } = useAuth();
 
   if (loading) return null;
-  if (!session) return <Redirect href="/(auth)/login" />;
+  if (!session && !DISABLE_AUTH) return <Redirect href="/(auth)/login" />; //Remove "&& !DiSABLE_AUTH" in production
 
   return (
     <Tabs
