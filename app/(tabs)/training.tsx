@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function TrainingScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon}>🏠</Text>
-      <Text style={styles.title}>Welcome Home</Text>
-      <Text style={styles.subtitle}>Check your progress, explore meals, or ask your assistant for help.</Text>
+      <Text style={styles.icon}>💪</Text>
+      <Text style={styles.title}>Training</Text>
+      <Text style={styles.description}>Plan and track your workouts here.</Text>
     </View>
   );
 }
@@ -23,14 +23,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  subtitle: {
+  description: {
     fontSize: 16,
-    textAlign: 'center',
     color: '#555',
-    paddingHorizontal: 12,
+    textAlign: 'center',
   },
 });
