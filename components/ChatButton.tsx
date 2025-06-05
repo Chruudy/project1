@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
+import Octicons from '@expo/vector-icons/Octicons';
 import { Pressable, StyleSheet } from 'react-native';
 
 export default function ChatButton({ onPress }: { onPress: () => void }) {
   return (
     <Pressable style={styles.container} onPress={onPress}>
-      <Ionicons name="chatbubble-ellipses-outline" size={28} color="#fff" />
+      <Octicons name="dependabot" size={28} color="white" />
     </Pressable>
   );
 }

@@ -69,7 +69,7 @@ export default function TabsLayout() {
         <ChatButton onPress={() => setChatVisible(true)} />
       ) : (
         <Pressable style={styles.minimizeBtn} onPress={() => setChatVisible(false)}>
-          <Ionicons name="chevron-down" size={28} color="#fff" />
+          <Ionicons name="chevron-down" size={28} color="white" />
         </Pressable>
       )}
     </>
