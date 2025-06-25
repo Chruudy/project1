@@ -3,10 +3,11 @@
 
 import ChatButton from '@/components/ChatButton';
 import ChatPopup from '@/components/ChatPopup';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import Octicons from '@expo/vector-icons/Octicons';
 import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../providers/AuthProvider';
 
 const DISABLE_AUTH = process.env.EXPO_PUBLIC_DISABLE_AUTH === 'true'; // Disable auth for development purpose
@@ -68,9 +69,11 @@ export default function TabsLayout() {
       {!chatVisible ? (
         <ChatButton onPress={() => setChatVisible(true)} />
       ) : (
-        <Pressable style={styles.minimizeBtn} onPress={() => setChatVisible(false)}>
-          <Ionicons name="chevron-down" size={28} color="white" />
-        </Pressable>
+      <Pressable style={styles.minimizeBtn} onPress={() => setChatVisible(false)}>
+        <View style={styles.iconWrapper}>
+          <Octicons name="chevron-down" size={28} color="white" />
+        </View>
+      </Pressable>
       )}
     </>
   );
@@ -84,11 +87,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#0077cc',
     padding: 14,
     borderRadius: 100,
-    zIndex: 1000,
-    elevation: 10,
+    elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
+    zIndex: 100,
+  },
+  iconWrapper: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

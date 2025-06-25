@@ -1,10 +1,12 @@
 import Octicons from '@expo/vector-icons/Octicons';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 export default function ChatButton({ onPress }: { onPress: () => void }) {
   return (
     <Pressable style={styles.container} onPress={onPress}>
-      <Octicons name="dependabot" size={28} color="white" />
+      <View style={styles.iconWrapper}>
+        <Octicons name="dependabot" size={28} color="white" />
+      </View>
     </Pressable>
   );
 }
@@ -23,6 +25,12 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     zIndex: 100,
+  },
+  iconWrapper: {
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 // This component is a floating chat button that can be used to navigate to a chat screen.

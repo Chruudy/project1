@@ -29,7 +29,7 @@ export default function NotFound() {
       <Text style={styles.submessage}>Let’s guide you back to Safety.</Text>
 
       <Pressable style={styles.button} onPress={() => router.replace('/(tabs)')}>
-        <Text style={styles.buttonText}>🏕️Back to Safety</Text>
+        <Text style={styles.buttonText}>🏕️  Back to Safety</Text>
       </Pressable>
     </View>
   );
