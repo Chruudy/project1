@@ -1,20 +1,20 @@
 // This file defines a custom 404 Not Found page for an Expo Router application.
-// Acts as an easter egg for users who navigate to a non-existent route.
+// Running-themed design for users who navigate to a non-existent route.
 
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-const npcQuotes = [
-  "Looks like you've wandered off the map...",
-  "You’ve stepped into an unknown realm.",
-  "Nothing here but fog and confusion.",
-  "The narrator whispers: “This path leads nowhere.”",
-  "This page must’ve been devoured by a mimic.",
-  "This area hasn’t been unlocked yet.",
+const runningQuotes = [
+  "You ran too far and lost your way...",
+  "Looks like you sprinted off the track!",
+  "This route isn’t on the map yet.",
+  "You’ve outrun the trail markers.",
+  "The finish line is nowhere in sight.",
+  "This path leads to uncharted territory.",
 ];
 
 function getRandomQuote() {
-  return npcQuotes[Math.floor(Math.random() * npcQuotes.length)];
+  return runningQuotes[Math.floor(Math.random() * runningQuotes.length)];
 }
 
 export default function NotFound() {
@@ -23,13 +23,13 @@ export default function NotFound() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.emoji}>🧭</Text>
-      <Text style={styles.title}>Page Not Found</Text>
+      <Text style={styles.emoji}>🏃‍♂️</Text>
+      <Text style={styles.title}>You Ran Too Far!</Text>
       <Text style={styles.message}>{quote}</Text>
-      <Text style={styles.submessage}>Let’s guide you back to Safety.</Text>
+      <Text style={styles.submessage}>Let’s get you back on track.</Text>
 
       <Pressable style={styles.button} onPress={() => router.replace('/(tabs)')}>
-        <Text style={styles.buttonText}>🏕️Back to Safety</Text>
+        <Text style={styles.buttonText}>🏁 Back to the Starting Line</Text>
       </Pressable>
     </View>
   );
@@ -57,11 +57,13 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginBottom: 8,
+    color: '#333',
   },
   submessage: {
     fontSize: 14,
     marginBottom: 24,
     textAlign: 'center',
+    color: '#555',
   },
   button: {
     backgroundColor: '#0077cc',
