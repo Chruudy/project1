@@ -7,19 +7,12 @@ import { ActivityIndicator, Button, KeyboardAvoidingView, Platform, StyleSheet, 
 import Toast from 'react-native-toast-message';
 import { supabase } from '../../services/supabase';
 
-const DISABLE_AUTH = process.env.EXPO_PUBLIC_DISABLE_AUTH === 'true'; // Disable auth for development purpose, remove this line in production
-
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  if (DISABLE_AUTH) {
-    router.replace('/(tabs)');  //remove this if statement in production
-    return null;
-  }
 
   const handleAuth = async () => {
     if (!email || !password) {

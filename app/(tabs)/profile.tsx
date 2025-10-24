@@ -1,16 +1,20 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../services/supabase';
 
 export default function Profile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const session = supabase.auth.getSession().then(({ data }) => {
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getSession();
       setUser(data?.session?.user || null);
-    });
+      setLoading(false);
+    };
+    fetchUser();
   }, []);
 
   const handleLogout = async () => {
@@ -22,18 +26,25 @@ export default function Profile() {
     <View style={styles.container}>
       <Text style={styles.emoji}>👤</Text>
       <Text style={styles.title}>Your Profile</Text>
-      {user ? (
-        <>
-          <Text style={styles.info}><Text style={styles.label}>Email:</Text> {user.email}</Text>
-          <Text style={styles.info}><Text style={styles.label}>Created:</Text> {new Date(user.created_at).toLocaleDateString()}</Text>
-        </>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#0077cc" />
+      ) : user ? (
+        <View style={styles.infoWrapper}>
+          <Text style={styles.info}>
+            <Text style={styles.label}>Email:</Text> {user.email}
+          </Text>
+          <Text style={styles.info}>
+            <Text style={styles.label}>Created:</Text> {new Date(user.created_at).toLocaleDateString()}
+          </Text>
+        </View>
       ) : (
-        <Text style={styles.loading}>Loading user info...</Text>
+        <Text style={styles.error}>Failed to load user info.</Text>
       )}
 
-      <View style={styles.buttonWrapper}>
-        <Button title="Logout" onPress={handleLogout} color="#d9534f" />
-      </View>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -44,32 +55,46 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f9f9', // Light gray background for a modern look
   },
   emoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 60,
     marginBottom: 16,
   },
-  info: {
-    fontSize: 14,
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 24,
+  },
+  infoWrapper: {
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  info: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 8,
   },
   label: {
     fontWeight: 'bold',
+    color: '#0077cc', // Blue for emphasis
   },
-  loading: {
-    fontSize: 14,
-    color: '#888',
-    marginBottom: 8,
+  error: {
+    fontSize: 16,
+    color: '#d9534f', // Red for error messages
+    marginBottom: 32,
   },
-  buttonWrapper: {
-    marginTop: 24,
-    width: '100%',
+  logoutButton: {
+    backgroundColor: '#d9534f', // Red for logout button
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 8,
+    elevation: 3, // Adds a subtle shadow for depth
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
