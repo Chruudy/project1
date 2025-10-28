@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,44 +17,54 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>(null);
   const [preferences, setPreferences] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
+  // ✅ Fetch both user session and their profile/preferences
+  const fetchUserData = useCallback(async () => {
+    try {
       setLoading(true);
-
       const { data: sessionData } = await supabase.auth.getSession();
       const userData = sessionData?.session?.user;
 
-      if (userData) {
-        setUser(userData);
-
-        // Fetch user profile and preferences from your new tables
-        const { data: profileData } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', userData.id)
-          .single();
-
-        const { data: preferencesData } = await supabase
-          .from('user_preferences')
-          .select('*')
-          .eq('id', userData.id)
-          .single();
-
-        setProfile(profileData);
-        setPreferences(preferencesData);
+      if (!userData) {
+        router.replace('/(auth)/login');
+        return;
       }
 
-      setLoading(false);
-    };
+      setUser(userData);
 
+      const [{ data: profileData }, { data: preferencesData }] = await Promise.all([
+        supabase.from('user_profiles').select('*').eq('id', userData.id).single(),
+        supabase.from('user_preferences').select('*').eq('id', userData.id).single(),
+      ]);
+
+      setProfile(profileData || {});
+      setPreferences(preferencesData || {});
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
+
+  // Pull to refresh support
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchUserData();
+    setRefreshing(false);
+  }, [fetchUserData]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace('/(auth)/login');
   };
+
+  const isIncomplete =
+    !profile?.height_cm || !profile?.weight_kg || !profile?.activity_level;
 
   if (loading) {
     return (
@@ -72,29 +83,63 @@ export default function Profile() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <Text style={styles.emoji}>👤</Text>
       <Text style={styles.title}>Your Profile</Text>
 
+      {/* ⚠️ Incomplete Profile Warning */}
+      {isIncomplete && (
+        <View style={styles.warningBox}>
+          <Text style={styles.warningText}>
+            ⚠️ Your profile is incomplete. Some features may not work correctly.
+          </Text>
+          <TouchableOpacity
+            style={styles.completeButton}
+            onPress={() => router.push('/(auth)/complete-profile')}
+          >
+            <Text style={styles.completeButtonText}>Complete Now</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* 🧾 Account Info */}
       <View style={styles.card}>
         <Text style={styles.sectionTitle}>Account</Text>
-        <Text style={styles.info}>
-          <Text style={styles.label}>Email:</Text> {user.email}
-        </Text>
-        <Text style={styles.info}>
-          <Text style={styles.label}>Joined:</Text>{' '}
-          {new Date(user.created_at).toLocaleDateString()}
-        </Text>
+        <InfoRow label="Email" value={user.email} />
+        <InfoRow
+          label="Joined"
+          value={new Date(user.created_at).toLocaleDateString()}
+        />
       </View>
 
+      {/* 🏋️ Physical Stats */}
       {profile && (
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Physical Stats</Text>
           <InfoRow label="Full Name" value={profile.full_name} />
-          <InfoRow label="Gender" value={profile.gender} />
+          <InfoRow label="Gender" value={capitalize(profile.gender)} />
           <InfoRow label="Age" value={calculateAge(profile.birth_date)} />
-          <InfoRow label="Height" value={`${profile.height_cm} cm`} />
-          <InfoRow label="Weight" value={`${profile.weight_kg} kg`} />
+          <InfoRow
+            label="Height"
+            value={
+              profile.height_cm
+                ? `${profile.height_cm} ${getUnit(preferences?.units, 'height')}`
+                : '-'
+            }
+          />
+          <InfoRow
+            label="Weight"
+            value={
+              profile.weight_kg
+                ? `${profile.weight_kg} ${getUnit(preferences?.units, 'weight')}`
+                : '-'
+            }
+          />
           <InfoRow
             label="Activity Level"
             value={capitalize(profile.activity_level)}
@@ -102,6 +147,7 @@ export default function Profile() {
         </View>
       )}
 
+      {/* ⚙️ Preferences */}
       {preferences && (
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Preferences</Text>
@@ -115,6 +161,7 @@ export default function Profile() {
         </View>
       )}
 
+      {/* 🚪 Logout */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
@@ -122,7 +169,7 @@ export default function Profile() {
   );
 }
 
-// Small helper to display rows
+// 🔹 Helpers
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <View style={styles.infoRow}>
     <Text style={styles.label}>{label}:</Text>
@@ -130,7 +177,6 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
   </View>
 );
 
-// Utility: calculate age from birthdate
 const calculateAge = (birthDate: string) => {
   if (!birthDate) return '-';
   const diff = Date.now() - new Date(birthDate).getTime();
@@ -141,6 +187,12 @@ const calculateAge = (birthDate: string) => {
 const capitalize = (str: string) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1) : '-';
 
+const getUnit = (units: string, type: 'height' | 'weight') => {
+  if (units === 'imperial') return type === 'height' ? 'in' : 'lbs';
+  return type === 'height' ? 'cm' : 'kg';
+};
+
+// 🎨 Styles
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -192,11 +244,6 @@ const styles = StyleSheet.create({
   value: {
     color: '#333',
   },
-  info: {
-    fontSize: 15,
-    color: '#444',
-    marginBottom: 6,
-  },
   logoutButton: {
     backgroundColor: '#d9534f',
     paddingVertical: 12,
@@ -212,5 +259,31 @@ const styles = StyleSheet.create({
   error: {
     color: '#d9534f',
     fontSize: 16,
+  },
+  warningBox: {
+    width: '100%',
+    backgroundColor: '#fff3cd',
+    borderLeftWidth: 4,
+    borderLeftColor: '#ffcc00',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  warningText: {
+    color: '#856404',
+    fontSize: 14,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  completeButton: {
+    alignSelf: 'center',
+    backgroundColor: '#0077cc',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  completeButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
 });
