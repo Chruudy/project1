@@ -76,7 +76,7 @@ export default function LoginScreen() {
         text2: 'Please complete your profile.',
       });
   
-      router.replace('/(auth)/complete-profile');
+      router.replace('./complete-profile');
       return;
     }
   
@@ -97,7 +97,7 @@ export default function LoginScreen() {
           text1: 'Almost done!',
           text2: 'Please complete your profile to get personalized plans.',
         });
-        router.replace('/(auth)/complete-profile');
+        router.replace('./complete-profile');
       } else {
         Toast.show({
           type: 'success',

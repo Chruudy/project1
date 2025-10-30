@@ -19,7 +19,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // ✅ Fetch both user session and their profile/preferences
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
@@ -100,7 +99,7 @@ export default function Profile() {
           </Text>
           <TouchableOpacity
             style={styles.completeButton}
-            onPress={() => router.push('/(auth)/complete-profile')}
+            onPress={() => router.push('/complete-profile' as any)}
           >
             <Text style={styles.completeButtonText}>Complete Now</Text>
           </TouchableOpacity>
