@@ -50,7 +50,6 @@ export default function Profile() {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Pull to refresh support
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchUserData();
@@ -99,7 +98,7 @@ export default function Profile() {
           </Text>
           <TouchableOpacity
             style={styles.completeButton}
-            onPress={() => router.push('/complete-profile' as any)}
+            onPress={() => router.push('/complete-profile')}
           >
             <Text style={styles.completeButtonText}>Complete Now</Text>
           </TouchableOpacity>
