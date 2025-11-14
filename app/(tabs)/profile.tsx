@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { supabase } from '../../services/supabase';
 
 export default function Profile() {
@@ -96,12 +97,6 @@ export default function Profile() {
           <Text style={styles.warningText}>
             ⚠️ Your profile is incomplete. Some features may not work correctly.
           </Text>
-          <TouchableOpacity
-            style={styles.completeButton}
-            onPress={() => router.push('/complete-profile')}
-          >
-            <Text style={styles.completeButtonText}>Complete Now</Text>
-          </TouchableOpacity>
         </View>
       )}
 
@@ -158,6 +153,37 @@ export default function Profile() {
           />
         </View>
       )}
+
+      {/* 🚴 Strava Integration */}
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Strava</Text>
+        <InfoRow
+          label="Status"
+          value={profile.strava_connected ? 'Connected' : 'Not Connected'}
+        />
+        {!profile.strava_connected && (
+          <TouchableOpacity
+            style={styles.stravaButton}
+            onPress={() => {
+              Toast.show({
+                type: 'info',
+                text1: 'Strava Integration',
+                text2: 'This feature is yet to be integrated.',
+              });
+            }}
+          >
+            <Text style={styles.stravaButtonText}>Connect to Strava</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* ✏️ Edit Profile Button */}
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => router.push('/complete-profile')}
+      >
+        <Text style={styles.editButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
 
       {/* 🚪 Logout */}
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -242,6 +268,18 @@ const styles = StyleSheet.create({
   value: {
     color: '#333',
   },
+  editButton: {
+    backgroundColor: '#0077cc',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   logoutButton: {
     backgroundColor: '#d9534f',
     paddingVertical: 12,
@@ -273,15 +311,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: 'center',
   },
-  completeButton: {
-    alignSelf: 'center',
-    backgroundColor: '#0077cc',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
+
+  stravaButton: {
+    backgroundColor: '#fc4c02',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    marginTop: 10,
   },
-  completeButtonText: {
+  stravaButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
 });
